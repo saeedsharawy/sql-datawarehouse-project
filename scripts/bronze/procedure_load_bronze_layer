@@ -1,0 +1,128 @@
+/* script purpose :
+    this stored procedure to load data into  the bronze layer from the csv files 
+    -it truncates the bronze table before loading it 
+    - bulk insert to load all the data into the tables 
+    usage : exec  bronze.Layer_bronze;
+    */
+    --inserting data into our table  
+--using truncate and insert : truncate to first check that the table is empty  and then inserrt  
+-- and by that you will alwayse get fresh data from the file 
+
+--exec  bronze.Layer_bronze;
+
+create or alter  procedure bronze.Layer_bronze as 
+begin 
+    declare @start_time datetime,@end_time datetime
+	set @start_time =GETDATE();
+	begin try
+		print ('==========================================================');
+		print (' Insert CRM Source Table ');
+		print ('==========================================================');
+		----crm cust info table --------
+		set @start_time =GETDATE();
+		print '>> Truncating Table : bronze.crm_cust_info';
+		truncate  table bronze.crm_cust_info;
+		print '>> Inserting Data Into : bronze.crm_cust_info';
+		bulk insert bronze.crm_cust_info 
+		from 'G:\me\courses\DataWithBara\SQL Course\projects data files\sql-data-warehouse-project\datasets\source_crm\cust_info.csv'
+		with (
+			firstrow = 2,
+			FIELDTERMINATOR = ',',
+			tablock 
+		);
+		set @end_time =getdate();
+		print 'Load Duration :' + cast(datediff(second,@start_time,@end_time) as nvarchar) +'seconds';
+		print'-----------------------------------------------';
+		---- crm prd info  table-------
+		set @start_time =GETDATE();
+		print '>> Truncating Table : bronze.crm_prd_info';
+		truncate  table bronze.crm_prd_info;
+		print '>> Inserting Data Into : bronze.crm_prd_info ';
+		bulk insert bronze.crm_prd_info 
+		from 'G:\me\courses\DataWithBara\SQL Course\projects data files\sql-data-warehouse-project\datasets\source_crm\prd_info.csv'
+		with (
+			firstrow = 2,
+			FIELDTERMINATOR = ',',
+			tablock 
+		);
+		set @end_time =getdate();
+		print 'Load Duration :' + cast(datediff(second,@start_time,@end_time) as nvarchar) +'seconds';
+		print'-----------------------------------------------';
+		------crm sales details table-------
+		set @start_time =GETDATE();
+		print '>> Truncating Table : bronze.crm_sales_details';
+		truncate table bronze.crm_sales_details;
+		print '>> Inserting Data Into : bronze.crm_sales_details  ';
+		bulk insert bronze.crm_sales_details 
+		from 'G:\me\courses\DataWithBara\SQL Course\projects data files\sql-data-warehouse-project\datasets\source_crm\sales_details.csv'
+		with (
+			firstrow = 2,
+			FIELDTERMINATOR = ',',
+			tablock 
+		);
+		set @end_time =getdate();
+		print 'Load Duration :' + cast(datediff(second,@start_time,@end_time) as nvarchar) +'seconds';
+		print'-----------------------------------------------';
+		------------------------------------
+		-- erp  table insert
+		------------------------------------
+		print ('==========================================================');
+		print (' Insert ERP Source Table ');
+		print ('==========================================================');
+		--erp_cust_az12 insert 
+		set @start_time =GETDATE();
+		print '>> Truncating Table : bronze.erp_cust_az12';
+		truncate table bronze.erp_cust_az12;
+		print '>> Inserting Data Into : bronze.erp_cust_az12  ';
+		bulk insert  bronze.erp_cust_az12
+		from 'G:\me\courses\DataWithBara\SQL Course\projects data files\sql-data-warehouse-project\datasets\source_erp\CUST_AZ12.csv'
+		with (
+			firstrow = 2,
+			FIELDTERMINATOR = ',',
+			tablock 
+		);
+		set @end_time =getdate();
+		print 'Load Duration :' + cast(datediff(second,@start_time,@end_time) as nvarchar) +'seconds';
+		print'-----------------------------------------------';
+		--erp_loc_a101 insert
+		set @start_time =GETDATE();
+		print '>> Truncating Table :bronze.erp_loc_a101';
+		truncate table bronze.erp_loc_a101;
+		print '>> Inserting Data Into : bronze.erp_loc_a101 ';
+		bulk insert  bronze.erp_loc_a101
+		from 'G:\me\courses\DataWithBara\SQL Course\projects data files\sql-data-warehouse-project\datasets\source_erp\LOC_A101.csv'
+		with (
+			firstrow = 2,
+			FIELDTERMINATOR = ',',
+			tablock 
+		);
+		set @end_time =getdate();
+		print 'Load Duration :' + cast(datediff(second,@start_time,@end_time) as nvarchar)+'seconds';
+		print'-----------------------------------------------';
+		--erp_px_cat_g1v2 insert
+		set @start_time =GETDATE();
+		print '>> Truncating Table : bronze.erp_px_cat_g1v2';
+		truncate table bronze.erp_px_cat_g1v2;
+		print '>> Inserting Data Into : bronze.erp_px_cat_g1v2 ';
+		bulk insert  bronze.erp_px_cat_g1v2
+		from 'G:\me\courses\DataWithBara\SQL Course\projects data files\sql-data-warehouse-project\datasets\source_erp\PX_CAT_G1V2.csv'
+		with (
+			firstrow = 2,
+			FIELDTERMINATOR = ',',
+			tablock 
+		);
+		set @end_time =getdate();
+		print 'Load Duration :' + cast(datediff(second,@start_time,@end_time) as nvarchar)+'seconds';
+		print'-----------------------------------------------';
+	end try
+	begin catch
+	print '============================================';
+	print 'Error Acuured During Loadinf The Data';
+	print 'Error Message' + error_message();
+	print 'Error Number'  + cast (error_number() as nvarchar);
+	print '============================================';
+	end catch
+		set @end_time =getdate();
+		print 'Whole Batch Load Duration :' + cast(datediff(second,@start_time,@end_time) as nvarchar) +'seconds';
+		print'-----------------------------------------------';
+end 
