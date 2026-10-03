@@ -1,0 +1,123 @@
+--===================================
+check for crm_cust_info
+--===================================
+--quality check for silver layer crm_cust_ info table 
+-- check for reduandancy 
+select 
+cst_id,
+count(*)
+from silver.crm_cust_info
+group by cst_id
+having count(*) > 1 or cst_id is null
+--check for un wanted spaces 
+-- 1-for gender 
+select 
+cst_gndr
+from silver.crm_cust_info
+where cst_gndr != trim(cst_gndr)
+--2-for first name
+select 
+cst_firstname
+from silver.crm_cust_info
+where cst_firstname != trim(cst_firstname)
+--3- for last name 
+select 
+cst_lastname
+from silver.crm_cust_info
+where cst_lastname != trim(cst_lastname)
+-- check data standarization 
+--1- for marital status 
+select distinct 
+cst_marital_status
+from silver.crm_cust_info
+--2- for gndr
+select distinct 
+cst_gndr
+from silver.crm_cust_info
+--===================================
+check for crm_prd_info
+--=================================
+-- checck reduandancy of table crm_prd_info 
+select 
+prd_id,
+count(*) 
+from silver.crm_prd_info
+group by prd_id
+having count(*) >1 or prd_id is null
+-- check for cost 
+select distinct 
+prd_cost
+from silver.crm_prd_info
+where prd_cost is null or prd_cost < 0
+-- check un eanted vales from the prd_nm
+select 
+prd_nm
+from silver.crm_prd_info
+where prd_nm != trim(prd_nm)
+--data standarization for prd_line
+select distinct 
+prd_line 
+from silver.crm_prd_info
+-- check for invalid dates 
+select * from silver.crm_prd_info
+where  prd_end_date < prd_start_date
+--===================================
+check for crm_sales_details
+--=================================
+--check for sales_details silver layer 
+--check for sls_prd_key
+select 
+sls_prd_key
+from silver.crm_sales_details
+where sls_prd_key != trim (sls_prd_key )
+--check for sls_ord_num
+select 
+sls_ord_num
+from silver.crm_sales_details
+where sls_ord_num != trim (sls_ord_num )
+--check for sls_order_dt
+-- the date is int so make sure there is no zero or negative
+select 
+sls_order_dt
+from bronze.crm_sales_details
+where sls_order_dt < 0 
+      or sls_order_dt = 0 
+      or len (sls_order_dt) != 8
+      or sls_order_dt = 20291012
+      or sls_order_dt = 19901203
+-- check for the sales and prices 
+-- sum of sales should = prices* quantity with no negative values and no zero
+select 
+sls_sales,
+sls_quantity,
+sls_price
+from silver.crm_sales_details
+where sls_sales != sls_quantity*sls_price or sls_sales is null
+--prices shoudnt be negative or 0 
+--quantity shount be negative too
+select 
+sls_price
+from silver.crm_sales_details
+where sls_price is null or sls_price < 0 or sls_price =0
+--===================================
+check for erp_cust_az12
+--===================================
+-- check for birthdate
+--it cant be in the future thats for sure 
+-- and may be it cant be too old but this we arent sure abouy iy 
+select 
+bdate
+from silver.erp_cust_az12
+where bdate > getdate()
+-- check for gndr (data standarization)
+select distinct 
+gen 
+from silver.erp_cust_az12
+--===================================
+check for erp_loc_a101
+--===================================
+-- check matching cid colum
+select * from bronze.erp_loc_a101;
+select *  from silver.crm_cust_info
+-- you will find a '-' making a difference between them so we will remove it in the insert query  
+select  distinct  cntry from silver.erp_loc_a101 order by cntry 
