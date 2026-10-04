@@ -27,6 +27,9 @@ SELECT
 FROM gold.dim_customers
 GROUP BY customer_key
 HAVING COUNT(*) > 1;
+-- check for data standarization of the view 
+--excpected n/a female and male
+select  distinct gender from gold.dim_customers 
 -- ====================================================================
 -- Checking 'gold.product_key'
 -- ====================================================================
