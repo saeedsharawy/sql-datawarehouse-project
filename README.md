@@ -1,5 +1,5 @@
 # sql-datawarehouse-project
-إليك النص الموجود في الصورة:
+
 
 # Data Warehouse and Analytics Project
 
@@ -27,28 +27,6 @@ This project involves:
 
 4. **Analytics & Reporting:** Creating SQL-based reports and dashboards for actionable insights.
 
-
-
-🎯 This repository is an excellent resource for professionals and students looking to showcase expertise in:
-
-* SQL Development
-
-
-* Data Architect
-
-
-* Data Engineering
-
-
-* ETL Pipeline Developer
-
-
-* Data Modeling
-
-
-* Data Analytics
-
-إليك النص الموجود في الصورة باللغة الإنجليزية كما ظهر تماماً:
 
 ## 🚀 Project Requirements
 
